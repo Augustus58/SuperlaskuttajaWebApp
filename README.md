@@ -4,4 +4,10 @@ Laskutusohjelma web-sovelluksena. Toteutetaan sovellus, jolla voidaan laskuttaa 
 
 http://t-akusilve.users.cs.helsinki.fi/SuperlaskuttajaWebApp/
 
+http://t-akusilve.users.cs.helsinki.fi/SuperlaskuttajaWebApp/html-demo/laskuttaja.html
+
+http://t-akusilve.users.cs.helsinki.fi/SuperlaskuttajaWebApp/TestiServlet1
+
+http://t-akusilve.users.cs.helsinki.fi/ConnectionTest/
+
 https://github.com/Augustus58/SuperlaskuttajaWebApp/blob/master/doc/dokumentaatio.pdf
