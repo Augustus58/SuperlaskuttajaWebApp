@@ -1,4 +1,4 @@
-package Models;
+package Superlaskuttaja.Models;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,11 +23,47 @@ public class User {
     private String username;
     private String password;
 
-    public User() {}
+    public User() {
+    }
+
     public User(int id, String username, String password) {
         this.id = id;
         this.username = username;
         this.password = password;
+    }
+
+    public static User searchUserByIDs(String kayttaja, String salasana) throws NamingException, SQLException {
+        String sql = "SELECT id, username, password from users where username = ? AND password = ?";
+        DBConnection dbc = new DBConnection();
+        Connection conn = dbc.getConnection();
+        PreparedStatement query = conn.prepareStatement(sql);
+        query.setString(1, kayttaja);
+        query.setString(2, salasana);
+        ResultSet rs = query.executeQuery();
+
+        User loggedIn = null;
+
+        if (rs.next()) {
+            loggedIn = new User();
+            loggedIn.setId(rs.getInt("id"));
+            loggedIn.setUsername(rs.getString("username"));
+            loggedIn.setPassword(rs.getString("password"));
+        }
+
+        try {
+            rs.close();
+        } catch (Exception e) {
+        }
+        try {
+            query.close();
+        } catch (Exception e) {
+        }
+        try {
+            conn.close();
+        } catch (Exception e) {
+        }
+
+        return loggedIn;
     }
 
     public static List<User> getUsers() throws NamingException, SQLException {
@@ -47,7 +83,7 @@ public class User {
 
             users.add(k);
         }
-        //Suljetaan kaikki resutuloksetsit:
+
         try {
             rs.close();
         } catch (Exception e) {

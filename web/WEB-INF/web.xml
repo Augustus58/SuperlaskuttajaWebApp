@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
     <servlet>
-        <servlet-name>TestiServlet</servlet-name>
-        <servlet-class>TestiServlet</servlet-class>
+        <servlet-name>Laskuttaja</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.LaskuttajaServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>TestiServlet1</servlet-name>
-        <servlet-class>TestiServlet1</servlet-class>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.LoginServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>TestiServlet</servlet-name>
-        <url-pattern>/TestiServlet</url-pattern>
+        <servlet-name>Laskuttaja</servlet-name>
+        <url-pattern>/LaskuttajaServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>TestiServlet1</servlet-name>
-        <url-pattern>/TestiServlet1</url-pattern>
+        <servlet-name>Laskuttaja</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/LoginServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
@@ -22,6 +26,6 @@
         </session-timeout>
     </session-config>
     <welcome-file-list>
-        <welcome-file>index.jsp</welcome-file>
+        <welcome-file>laskuttaja.jsp</welcome-file>
     </welcome-file-list>
 </web-app>

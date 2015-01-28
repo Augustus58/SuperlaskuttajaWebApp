@@ -1,4 +1,4 @@
-package Models;
+package Superlaskuttaja.Models;
 
 import java.sql.Connection;
 import java.sql.SQLException;
