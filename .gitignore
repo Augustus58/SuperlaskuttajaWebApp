@@ -2,3 +2,4 @@ build
 dist
 nbproject/private
 web/META-INF/context.xml
+.DS_Store

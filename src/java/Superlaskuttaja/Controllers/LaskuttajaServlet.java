@@ -5,6 +5,7 @@
  */
 package Superlaskuttaja.Controllers;
 
+import Superlaskuttaja.Models.UnivClass;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.RequestDispatcher;
@@ -33,6 +34,7 @@ public class LaskuttajaServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         try {
+            UnivClass.setAttributeUserLogged(request);
             RequestDispatcher dispatcher = request.getRequestDispatcher("laskuttaja.jsp");
             dispatcher.forward(request, response);
         } finally {

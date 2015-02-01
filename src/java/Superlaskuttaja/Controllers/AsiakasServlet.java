@@ -6,24 +6,18 @@
 package Superlaskuttaja.Controllers;
 
 import Superlaskuttaja.Models.UnivClass;
-import Superlaskuttaja.Models.User;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  *
  * @author Augustus58
  */
-public class LoginServlet extends HttpServlet {
+public class AsiakasServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -40,54 +34,8 @@ public class LoginServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
         try {
             if (getServletConfig().getInitParameter("univParam").equals("index")) {
-                UnivClass.showJSP("/login/login.jsp", request, response);
-            }
-            if (getServletConfig().getInitParameter("univParam").equals("logInAttempt")) {
-                String salasana = request.getParameter("password");
-                String kayttaja = request.getParameter("username");
-
-                if (kayttaja == null && salasana == null) {
-                    UnivClass.showJSP("/login/login.jsp", request, response);
-                    return;
-                }
-
-                if (kayttaja == null || kayttaja.equals("")) {
-                    UnivClass.setError("Kirjautuminen epäonnistui! Et antanut käyttäjätunnusta.", request);
-                    UnivClass.showJSP("/login/login.jsp", request, response);
-                    return;
-                }
-
-                request.setAttribute("kayttaja", kayttaja);
-
-                if (salasana == null || salasana.equals("")) {
-                    UnivClass.setError("Kirjautuminen epäonnistui! Et antanut salasanaa.", request);
-                    UnivClass.showJSP("/login/login.jsp", request, response);
-                    return;
-                }
-                
-                HttpSession session = request.getSession();
-                
-                User u = null;
-                try {
-                    u = User.searchUserByIDs(kayttaja, salasana);
-                } catch (NamingException ex) {
-                    Logger.getLogger(LoginServlet.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (SQLException ex) {
-                    Logger.getLogger(LoginServlet.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-                if (u != null) {
-                    session.setAttribute("loggedIn", u);
-                    response.sendRedirect("Laskuttaja");
-                } else {
-                    UnivClass.setError("Kirjautuminen epäonnistui! Antamasi tunnus tai salasana on väärä.", request);
-                    UnivClass.showJSP("/login/login.jsp", request, response);
-                }
-            }
-            
-            if (getServletConfig().getInitParameter("univParam").equals("logOut")) {
-                request.getSession().removeAttribute("loggedIn");
-                UnivClass.showJSP("Laskuttaja", request, response);
+                UnivClass.setAttributeUserLogged(request);
+                UnivClass.showJSP("/asiakkaat.jsp", request, response);
             }
         } finally {
             out.close();

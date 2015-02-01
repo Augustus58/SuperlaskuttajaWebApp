@@ -6,9 +6,9 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<t:template pageTitle="Login">
+<t:template pageTitle="Login" selectedTab="0">
     <div class="container">
-        <form class="form-horizontal" role="form" action="LoginServlet?univParam=logInAttempt" method="POST">
+        <form class="form-horizontal" role="form" action="LoginServletlogInAttempt" method="POST">
             <div class="form-group">
                 <label for="inputUsername1" class="col-md-2 control-label">Käyttäjätunnus</label>
                 <div class="col-md-10">
