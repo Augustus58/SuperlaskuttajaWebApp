@@ -35,7 +35,7 @@ public class LaskuServlet extends HttpServlet {
         try {
             if (getServletConfig().getInitParameter("univParam").equals("index")) {
                 UnivClass.setAttributeUserLogged(request);
-                UnivClass.showJSP("/laskut.jsp", request, response);
+                UnivClass.showJSP("/laskut/index.jsp", request, response);
             }
         } finally {
             out.close();

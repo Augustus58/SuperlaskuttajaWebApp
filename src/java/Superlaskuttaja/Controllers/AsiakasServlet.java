@@ -5,13 +5,20 @@
  */
 package Superlaskuttaja.Controllers;
 
+import Superlaskuttaja.Models.Asiakas;
 import Superlaskuttaja.Models.UnivClass;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -34,8 +41,74 @@ public class AsiakasServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
         try {
             if (getServletConfig().getInitParameter("univParam").equals("index")) {
-                UnivClass.setAttributeUserLogged(request);
-                UnivClass.showJSP("/asiakkaat.jsp", request, response);
+                try {
+                    if (UnivClass.isUserLoggedIn(request)) {
+                        List<Asiakas> asiakkaat = Asiakas.getAsiakkaat();
+                        request.setAttribute("asiakkaat", asiakkaat);
+                        UnivClass.setAttributeUserLogged(request);
+                        UnivClass.showJSP("/asiakkaat/index.jsp", request, response);
+                    } else {
+                        UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
+                        UnivClass.showJSP("/login/login.jsp", request, response);
+                    }
+                } catch (NamingException namingException) {
+                } catch (SQLException sQLException) {
+                }
+            }
+
+            if (getServletConfig().getInitParameter("univParam").equals("new")) {
+                if (UnivClass.isUserLoggedIn(request)) {
+                    Integer anro = 0;
+                    if (Asiakas.getHighestAsiakasnumero() == 0) {
+                        anro = 1000;
+                    } else {
+                        anro = Asiakas.getHighestAsiakasnumero() + 1;
+                    }
+                    request.setAttribute("asiakasnumero", anro.toString());
+                    UnivClass.setAttributeUserLogged(request);
+                    UnivClass.showJSP("/asiakkaat/new.jsp", request, response);
+                } else {
+                    UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
+                    UnivClass.showJSP("/login/login.jsp", request, response);
+                }
+            }
+
+            if (getServletConfig().getInitParameter("univParam").equals("create")) {
+                if (UnivClass.isUserLoggedIn(request)) {
+                    try {
+                        Asiakas uusiAsiakas = new Asiakas();
+                        uusiAsiakas.setNimi(request.getParameter("nimi"));
+                        uusiAsiakas.setKatuosoite(request.getParameter("katuosoite"));
+                        uusiAsiakas.setPostinumero(request.getParameter("postinumero"));
+                        uusiAsiakas.setKaupunki(request.getParameter("kaupunki"));
+                        uusiAsiakas.setEmail(request.getParameter("email"));
+                        uusiAsiakas.setAsiakasnumero(request.getParameter("asiakasnumero"));
+                        uusiAsiakas.setLaskujaLahetetty(request.getParameter("laskujaLahetetty"));
+                        uusiAsiakas.setVersio(1);
+                        if (uusiAsiakas.onkoTiedotOikeanlaiset()) {
+                            uusiAsiakas.addToDb();
+                            response.sendRedirect("AsiakasServletIndex");
+                            HttpSession session = request.getSession();
+                            session.setAttribute("notification", "Asiakas lisätty onnistuneesti.");
+                        } else {
+                            request.setAttribute("errors", uusiAsiakas.getErrors());
+                            request.setAttribute("asiakas", uusiAsiakas);
+                            request.setAttribute("asiakasnumero", request.getParameter("asiakasnumero"));
+                            request.setAttribute("laskujaLahetetty", request.getParameter("laskujaLahetetty"));
+                            UnivClass.setAttributeUserLogged(request);
+                            UnivClass.showJSP("/asiakkaat/new.jsp", request, response);
+                        }
+                    } catch (NumberFormatException numberFormatException) {
+                        numberFormatException.printStackTrace();
+                    } catch (NamingException namingException) {
+                        namingException.printStackTrace();
+                    } catch (SQLException sQLException) {
+                        sQLException.printStackTrace();
+                    }
+                } else {
+                    UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
+                    UnivClass.showJSP("/login/login.jsp", request, response);
+                }
             }
         } finally {
             out.close();

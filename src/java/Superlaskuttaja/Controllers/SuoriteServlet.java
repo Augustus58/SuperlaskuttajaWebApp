@@ -35,7 +35,7 @@ public class SuoriteServlet extends HttpServlet {
         try {
             if (getServletConfig().getInitParameter("univParam").equals("index")) {
                 UnivClass.setAttributeUserLogged(request);
-                UnivClass.showJSP("/suoritteet.jsp", request, response);
+                UnivClass.showJSP("/suoritteet/index.jsp", request, response);
             }
         } finally {
             out.close();

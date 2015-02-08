@@ -35,7 +35,7 @@ public class LaskuttajaServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
         try {
             UnivClass.setAttributeUserLogged(request);
-            RequestDispatcher dispatcher = request.getRequestDispatcher("laskuttaja.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/laskuttaja/show.jsp");
             dispatcher.forward(request, response);
         } finally {
             out.close();

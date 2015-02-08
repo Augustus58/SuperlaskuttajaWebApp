@@ -37,6 +37,22 @@
         </init-param>
     </servlet>
     <servlet>
+        <servlet-name>AsiakasServletNew</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.AsiakasServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>new</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>AsiakasServletCreate</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.AsiakasServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>create</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
         <servlet-name>SuoriteServletIndex</servlet-name>
         <servlet-class>Superlaskuttaja.Controllers.SuoriteServlet</servlet-class>
         <init-param>
@@ -75,6 +91,14 @@
     <servlet-mapping>
         <servlet-name>AsiakasServletIndex</servlet-name>
         <url-pattern>/AsiakasServletIndex</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AsiakasServletNew</servlet-name>
+        <url-pattern>/AsiakasServletNew</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AsiakasServletCreate</servlet-name>
+        <url-pattern>/AsiakasServletCreate</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>SuoriteServletIndex</servlet-name>
