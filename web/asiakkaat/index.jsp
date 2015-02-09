@@ -6,6 +6,7 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <t:template pageTitle="Asiakkaat" selectedTab="2">
     <table class="table table-striped">
         <thead>
@@ -19,21 +20,21 @@
                 <th>Laskuja lähetetty</th>
                 <th>Muokkaa</th>
                 <th>Poista</th>
-                <th>Versio</th>
             </tr>
         </thead>
         <tbody>
         <c:forEach var="asiakas" items="${asiakkaat}">
-            <td>${asiakas.getNimi}</td>
-            <td>${asiakas.getKatuosoite}</td>
-            <td>${asiakas.getPostinumero}</td>
-            <td>${asiakas.getKaupunki}</td>
-            <td>${asiakas.getEmail}</td>
-            <td>${asiakas.getAsiakasnumero}</td>
-            <td>${asiakas.getLaskujaLahetetty}</td>
-            <td><button type="button" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-edit"></span>Muokkaa</button></td>
-            <td><button type="button" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-remove"></span>Poista</button></td>
-            <td>${asiakas.getVersio}</td>
+            <tr>
+            <td>${asiakas.nimi}</td>
+            <td>${asiakas.katuosoite}</td>
+            <td>${asiakas.postinumero}</td>
+            <td>${asiakas.kaupunki}</td>
+            <td>${asiakas.email}</td>
+            <td>${asiakas.asiakasnumero}</td>
+            <td>${asiakas.laskujaLahetetty}</td>
+            <td><button onclick=window.location.href="AsiakasServletEdit?asiakasnumero=${asiakas.asiakasnumero}" type="button" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-edit"></span>Muokkaa</button></td>
+            <td><button onclick=window.location.href="AsiakasServletDestroy?asiakasnumero=${asiakas.asiakasnumero}" type="button" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-remove"></span>Poista</button></td>
+            </tr>
         </c:forEach>
     </tbody>
 </table>

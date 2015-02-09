@@ -72,6 +72,9 @@
             <c:if test="${pageError != null}">
                 <div class="alert alert-danger">${pageError}</div>
             </c:if>
+            <c:if test="${notification != null}">
+                <div class="alert alert-info">${notification}</div>
+            </c:if>
             <jsp:doBody/>
         </div>
     </body>

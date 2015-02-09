@@ -53,6 +53,30 @@
         </init-param>
     </servlet>
     <servlet>
+        <servlet-name>AsiakasServletEdit</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.AsiakasServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>edit</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>AsiakasServletUpdate</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.AsiakasServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>update</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>AsiakasServletDestroy</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.AsiakasServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>destroy</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
         <servlet-name>SuoriteServletIndex</servlet-name>
         <servlet-class>Superlaskuttaja.Controllers.SuoriteServlet</servlet-class>
         <init-param>
@@ -99,6 +123,18 @@
     <servlet-mapping>
         <servlet-name>AsiakasServletCreate</servlet-name>
         <url-pattern>/AsiakasServletCreate</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AsiakasServletEdit</servlet-name>
+        <url-pattern>/AsiakasServletEdit</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AsiakasServletUpdate</servlet-name>
+        <url-pattern>/AsiakasServletUpdate</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AsiakasServletDestroy</servlet-name>
+        <url-pattern>/AsiakasServletDestroy</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>SuoriteServletIndex</servlet-name>

@@ -11,7 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,7 @@ public class Asiakas {
     private Integer laskujaLahetetty;
     private String email;
     private MerkkiJaMerkkijonoTarkistin tarkistin;
-    private HashMap<String, String> errors = new HashMap<String, String>();
+    private Map<String, String> errors;
 
     public Asiakas() {
         this.tarkistin = new MerkkiJaMerkkijonoTarkistin();
@@ -49,6 +48,7 @@ public class Asiakas {
         this.laskujaLahetetty = laskujaLahetetty;
         this.email = email;
         this.tarkistin = new MerkkiJaMerkkijonoTarkistin();
+        this.errors = new HashMap<String, String>();
     }
 
     public static List<Asiakas> getAsiakkaat() throws NamingException, SQLException {
@@ -100,13 +100,13 @@ public class Asiakas {
 
     }
 
-    public static int getHighestAsiakasnumero() {
+    public static Integer getHighestAsiakasnumero() {
         try {
             DBConnection dbc = new DBConnection();
             Connection c = dbc.getConnection();
             Statement st = c.createStatement();
             ResultSet rs = st.executeQuery("select max(asiakasnumero) from Asiakas");
-            int i = 0;
+            Integer i = 0;
             rs.next();
             i = rs.getInt(1);
             rs.close();
@@ -117,6 +117,34 @@ public class Asiakas {
             return 0;
         } catch (SQLException sQLException) {
             return 0;
+        }
+    }
+    
+    public static Integer getHighestVersionByAsiakasnumero(Integer asiakasnumero) {
+        try {
+            String sql = "select max(versio) from Asiakas where asiakasnumero = ?";
+            DBConnection dbc = new DBConnection();
+            Connection c = dbc.getConnection();
+            PreparedStatement ps = c.prepareStatement(sql);
+            
+            ps.setInt(1, asiakasnumero);
+            
+            ResultSet rs = ps.executeQuery();
+            
+            rs.next();
+            
+            Integer i = 0;
+            i = rs.getInt(1);
+            
+            rs.close();
+            ps.close();
+            c.close();
+           
+            return i;
+        } catch (NamingException namingException) {
+            return 1;
+        } catch (SQLException sQLException) {
+            return 1;
         }
     }
 
@@ -141,26 +169,19 @@ public class Asiakas {
         ps.close();
         c.close();
     }
-
-    /**
-     * Metodi kertoo onko asiakkaan tiedot oikeanlaiset.
-     *
-     * @return Tieto tietojen oikeellisuudesta.
-     * @throws javax.naming.NamingException
-     * @throws java.sql.SQLException
-     */
-    public Boolean onkoTiedotOikeanlaiset() throws NamingException, SQLException {
-        if (onkoNimiOikeanlainen()
-                && onkoKaupunkiOikeanlainen()
-                && onkoKatuosoiteOikeanlainen()
-                && onkoAsiakasnumeroOikeanlainen()
-                && onkoPostinumeroOikeanlainen()
-                && onkoLaskujaLahetettyOikeanlainen()
-                && onkoSahkopostiOikeanlainen()) {
-            errors.clear();
-            return true;
-        }
-        return false;
+    
+    public static void removeFromDb(Integer asiakasnumero) throws SQLException, NamingException {
+        String sql = "delete from Asiakas where asiakasnumero = ?";
+        DBConnection dbc = new DBConnection();
+        Connection c = dbc.getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        
+        ps.setInt(1, asiakasnumero);
+        
+        ps.execute();
+        
+        ps.close();
+        c.close();
     }
 
     /**
@@ -172,6 +193,8 @@ public class Asiakas {
         Boolean b = !tarkistin.onkoMerkkijonoTyhjaTaiKoostuukoSeValilyonneista(nimi);
         if (!b) {
             errors.put("nimi", "Nimi ei saa olla tyhjä.");
+        } else {
+            errors.remove("nimi");
         }
         return (b);
     }
@@ -185,6 +208,8 @@ public class Asiakas {
         Boolean b = !tarkistin.onkoMerkkijonoTyhjaTaiKoostuukoSeValilyonneista(kaupunki);
         if (!b) {
             errors.put("kaupunki", "Kaupunki ei saa olla tyhjä.");
+        } else {
+            errors.remove("kaupunki");
         }
         return (b);
     }
@@ -198,6 +223,8 @@ public class Asiakas {
         Boolean b = !tarkistin.onkoMerkkijonoTyhjaTaiKoostuukoSeValilyonneista(katuosoite);
         if (!b) {
             errors.put("katuosoite", "Katuosoite ei saa olla tyhjä.");
+        } else {
+            errors.remove("katuosoite");
         }
         return (b);
     }
@@ -223,10 +250,8 @@ public class Asiakas {
         }
         if (!b) {
             errors.put("asiakasnumero", "Asiakasnumeron tulee olla vähintään kaksi numeroa pitkä ja etunollia ei saa olla.");
-        }
-        if (asiakasnumero != null && getAsiakasByAsiakasnumero(asiakasnumero) != null) {
-            b = false;
-            errors.put("asiakasnumero", "Asiakasnumero on käytössä.");
+        } else {
+            errors.remove("asiakasnumero");
         }
         return (b);
     }
@@ -237,9 +262,11 @@ public class Asiakas {
      * @return Tieto postinumeron oikeanlaisuudesta.
      */
     public Boolean onkoPostinumeroOikeanlainen() {
-        Boolean b = !tarkistin.koostuukoMerkkijonoNumeroista(postinumero);
+        Boolean b = tarkistin.koostuukoMerkkijonoNumeroista(postinumero);
         if (!b) {
             errors.put("postinumero", "Postinumeron tulee koostua numeroista.");
+        } else {
+            errors.remove("postinumero");
         }
         return (b);
     }
@@ -260,6 +287,8 @@ public class Asiakas {
         }
         if (!b) {
             errors.put("laskujaLahetetty", "Laskuja lähetetty - arvon tulee olla enemmän tai saman verran kuin nolla.");
+        } else {
+            errors.remove("laskujaLahetetty");
         }
         return (b);
     }
@@ -270,9 +299,11 @@ public class Asiakas {
      * @return Tieto sähköpostiosoitteen oikeanlaisuudesta.
      */
     public Boolean onkoSahkopostiOikeanlainen() {
-        Boolean b = !tarkistin.onkoEmailOsoiteValidi(email);
+        Boolean b = tarkistin.onkoEmailOsoiteValidi(email);
         if (!b) {
             errors.put("email", "Sähköpostiosoitteen tulee olla validi.");
+        } else {
+            errors.remove("email");
         }
         return (b);
     }
@@ -309,13 +340,14 @@ public class Asiakas {
         return email;
     }
 
-    public Collection<String> getErrors() {
-        return errors.values();
+    public Map<String, String> getErrors() {
+        return errors;
     }
 
-    public void setAsiakasnumero(String asiakasnumero) {
+    public void setAsiakasnumero(String asiakasnumero) throws NamingException, SQLException {
         try {
             this.asiakasnumero = Integer.parseInt(asiakasnumero);
+            onkoAsiakasnumeroOikeanlainen();
         } catch (NumberFormatException numberFormatException) {
             errors.put("asiakasnumero", "Asiakasnumeron tulee olla vähintään kaksi numeroa pitkä ja etunollia ei saa olla.");
         }
@@ -327,23 +359,28 @@ public class Asiakas {
 
     public void setNimi(String nimi) {
         this.nimi = nimi;
+        onkoNimiOikeanlainen();
     }
 
     public void setKatuosoite(String katuosoite) {
         this.katuosoite = katuosoite;
+        onkoKatuosoiteOikeanlainen();
     }
 
     public void setPostinumero(String postinumero) {
         this.postinumero = postinumero;
+        onkoPostinumeroOikeanlainen();
     }
 
     public void setKaupunki(String kaupunki) {
         this.kaupunki = kaupunki;
+        onkoKaupunkiOikeanlainen();
     }
 
     public void setLaskujaLahetetty(String laskujaLahetetty) {
         try {
             this.laskujaLahetetty = Integer.parseInt(laskujaLahetetty);
+            onkoLaskujaLahetettyOikeanlainen();
         } catch (NumberFormatException numberFormatException) {
             errors.put("laskujaLahetetty", "Laskuja lähetetty - arvon tulee olla enemmän tai saman verran kuin nolla.");
         }
@@ -351,6 +388,7 @@ public class Asiakas {
 
     public void setEmail(String email) {
         this.email = email;
+        onkoSahkopostiOikeanlainen();
     }
 
 }

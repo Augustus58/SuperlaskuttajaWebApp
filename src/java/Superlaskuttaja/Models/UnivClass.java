@@ -52,4 +52,13 @@ public class UnivClass {
         }
     }
 
+    public static void getNotification(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        String notification = (String) session.getAttribute("notification");
+        if (notification != null) {
+            session.removeAttribute("notification");
+            request.setAttribute("notification", notification);
+        }
+    }
+
 }

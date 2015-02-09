@@ -10,9 +10,7 @@ import Superlaskuttaja.Models.UnivClass;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -45,6 +43,7 @@ public class AsiakasServlet extends HttpServlet {
                     if (UnivClass.isUserLoggedIn(request)) {
                         List<Asiakas> asiakkaat = Asiakas.getAsiakkaat();
                         request.setAttribute("asiakkaat", asiakkaat);
+                        UnivClass.getNotification(request);
                         UnivClass.setAttributeUserLogged(request);
                         UnivClass.showJSP("/asiakkaat/index.jsp", request, response);
                     } else {
@@ -85,11 +84,14 @@ public class AsiakasServlet extends HttpServlet {
                         uusiAsiakas.setAsiakasnumero(request.getParameter("asiakasnumero"));
                         uusiAsiakas.setLaskujaLahetetty(request.getParameter("laskujaLahetetty"));
                         uusiAsiakas.setVersio(1);
-                        if (uusiAsiakas.onkoTiedotOikeanlaiset()) {
+                        if (Asiakas.getAsiakasByAsiakasnumero(uusiAsiakas.getAsiakasnumero()) != null) {
+                            uusiAsiakas.getErrors().put("asiakasnumero", "Asiakasnumero on käytössä");
+                        }
+                        if (uusiAsiakas.getErrors().isEmpty()) {
                             uusiAsiakas.addToDb();
-                            response.sendRedirect("AsiakasServletIndex");
                             HttpSession session = request.getSession();
                             session.setAttribute("notification", "Asiakas lisätty onnistuneesti.");
+                            response.sendRedirect("AsiakasServletIndex");
                         } else {
                             request.setAttribute("errors", uusiAsiakas.getErrors());
                             request.setAttribute("asiakas", uusiAsiakas);
@@ -99,12 +101,83 @@ public class AsiakasServlet extends HttpServlet {
                             UnivClass.showJSP("/asiakkaat/new.jsp", request, response);
                         }
                     } catch (NumberFormatException numberFormatException) {
-                        numberFormatException.printStackTrace();
                     } catch (NamingException namingException) {
-                        namingException.printStackTrace();
+                    } catch (SQLException sQLException) {
+                    }
+                } else {
+                    UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
+                    UnivClass.showJSP("/login/login.jsp", request, response);
+                }
+            }
+
+            if (getServletConfig().getInitParameter("univParam").equals("edit")) {
+                try {
+                    Integer asiakasnumero = Integer.parseInt(request.getParameter("asiakasnumero"));
+                    Asiakas asiakas = Asiakas.getAsiakasByAsiakasnumero(asiakasnumero);
+                    request.setAttribute("asiakas", asiakas);
+                    request.setAttribute("asiakasnumero", asiakas.getAsiakasnumero());
+                    request.setAttribute("laskujaLahetetty", asiakas.getLaskujaLahetetty());
+                    HttpSession session = request.getSession();
+                    session.setAttribute("asiakasnumero", asiakas.getAsiakasnumero());
+                    UnivClass.setAttributeUserLogged(request);
+                    UnivClass.showJSP("/asiakkaat/edit.jsp", request, response);
+                } catch (NumberFormatException numberFormatException) {
+                } catch (NamingException namingException) {
+                } catch (SQLException sQLException) {
+                }
+            }
+
+            if (getServletConfig().getInitParameter("univParam").equals("update")) {
+                if (UnivClass.isUserLoggedIn(request)) {
+                    try {
+                        Asiakas asiakas = new Asiakas();
+                        asiakas.setNimi(request.getParameter("nimi"));
+                        asiakas.setKatuosoite(request.getParameter("katuosoite"));
+                        asiakas.setPostinumero(request.getParameter("postinumero"));
+                        asiakas.setKaupunki(request.getParameter("kaupunki"));
+                        asiakas.setEmail(request.getParameter("email"));
+                        HttpSession session = request.getSession();
+                        asiakas.setAsiakasnumero(((Integer) session.getAttribute("asiakasnumero")).toString());
+                        asiakas.setLaskujaLahetetty(request.getParameter("laskujaLahetetty"));
+                        if (asiakas.getErrors().isEmpty()) {
+                            asiakas.setVersio(Asiakas.getHighestVersionByAsiakasnumero(asiakas.getAsiakasnumero()) + 1);
+                            asiakas.addToDb();
+                            session.removeAttribute("asiakasnumero");
+                            session.setAttribute("notification", "Asiakasta " + asiakas.getAsiakasnumero() + " muokattu onnistuneesti.");
+                            response.sendRedirect("AsiakasServletIndex");
+                        } else {
+                            request.setAttribute("errors", asiakas.getErrors());
+                            request.setAttribute("asiakas", asiakas);
+                            request.setAttribute("asiakasnumero", request.getParameter("asiakasnumero"));
+                            request.setAttribute("laskujaLahetetty", request.getParameter("laskujaLahetetty"));
+                            UnivClass.setAttributeUserLogged(request);
+                            UnivClass.showJSP("/asiakkaat/edit.jsp", request, response);
+                        }
+                    } catch (NumberFormatException numberFormatException) {
+                    } catch (NamingException namingException) {
+                    } catch (SQLException sQLException) {
+                    }
+                } else {
+                    UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
+                    UnivClass.showJSP("/login/login.jsp", request, response);
+                }
+            }
+
+            if (getServletConfig().getInitParameter("univParam").equals("destroy")) {
+                if (UnivClass.isUserLoggedIn(request)) {
+                    try {
+                        Integer asiakasnumero = Integer.parseInt(request.getParameter("asiakasnumero"));
+                        Asiakas.removeFromDb(asiakasnumero);
+                        HttpSession session = request.getSession();
+                        session.setAttribute("notification", "Asiakas " + asiakasnumero + " poistettiin onnistuneesti.");
+                        response.sendRedirect("AsiakasServletIndex");
+                    } catch (NumberFormatException numberFormatException) {
+                        numberFormatException.printStackTrace();
                     } catch (SQLException sQLException) {
                         sQLException.printStackTrace();
-                    }
+                    } catch (NamingException namingException) {
+                        namingException.printStackTrace();
+                    } 
                 } else {
                     UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
                     UnivClass.showJSP("/login/login.jsp", request, response);

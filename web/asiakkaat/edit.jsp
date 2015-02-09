@@ -1,18 +1,18 @@
 <%-- 
-    Document   : new
-    Created on : 8.2.2015, 15:18:11
+    Document   : edit
+    Created on : 9.2.2015, 0:36:36
     Author     : Augustus58
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<t:template pageTitle="Uusi asiakas" selectedTab="2">
+<t:template pageTitle="Muokkaa asiakasta" selectedTab="2">
     <c:forEach items="${errors}" var="error">
         ${error.key}: ${error.value} <br>
     </c:forEach>
     <div class="container">
-        <form class="form-horizontal" role="form" action="AsiakasServletCreate" method="POST">
+        <form class="form-horizontal" role="form" action="AsiakasServletUpdate" method="POST">
             <div class="form-group">
                 <label for="inputNimi1" class="col-md-2 control-label">Nimi</label>
                 <div class="col-md-10">
@@ -46,7 +46,7 @@
             <div class="form-group">
                 <label for="inputAsiakasnumero1" class="col-md-2 control-label">Asiakasnumero</label>
                 <div class="col-md-10">
-                    <input type="text" class="form-control" id="inputAsiakasnumero1" name="asiakasnumero" placeholder="Asiakasnumero" value="${asiakasnumero}">
+                    <input type="text" class="form-control" id="inputAsiakasnumero1" name="asiakasnumero" placeholder="Asiakasnumero" value="${asiakasnumero}" disabled>
                 </div>
             </div>
             <div class="form-group">
@@ -57,7 +57,7 @@
             </div>
             <div class="form-group">
                 <div class="col-md-offset-2 col-md-10">
-                    <button type="submit" class="btn btn-default">Ok</button>
+                    <button type="submit" class="btn btn-default">Muokkaa</button>
                 </div>
             </div>
         </form>
