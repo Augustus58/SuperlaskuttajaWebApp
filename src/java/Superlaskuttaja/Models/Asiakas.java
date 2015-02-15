@@ -192,9 +192,9 @@ public class Asiakas {
     public Boolean onkoNimiOikeanlainen() {
         Boolean b = !tarkistin.onkoMerkkijonoTyhjaTaiKoostuukoSeValilyonneista(nimi);
         if (!b) {
-            errors.put("nimi", "Nimi ei saa olla tyhjä.");
+            errors.put("Nimi", "Nimi ei saa olla tyhjä.");
         } else {
-            errors.remove("nimi");
+            errors.remove("Nimi");
         }
         return (b);
     }
@@ -207,9 +207,9 @@ public class Asiakas {
     public Boolean onkoKaupunkiOikeanlainen() {
         Boolean b = !tarkistin.onkoMerkkijonoTyhjaTaiKoostuukoSeValilyonneista(kaupunki);
         if (!b) {
-            errors.put("kaupunki", "Kaupunki ei saa olla tyhjä.");
+            errors.put("Kaupunki", "Kaupunki ei saa olla tyhjä.");
         } else {
-            errors.remove("kaupunki");
+            errors.remove("Kaupunki");
         }
         return (b);
     }
@@ -222,9 +222,9 @@ public class Asiakas {
     public Boolean onkoKatuosoiteOikeanlainen() {
         Boolean b = !tarkistin.onkoMerkkijonoTyhjaTaiKoostuukoSeValilyonneista(katuosoite);
         if (!b) {
-            errors.put("katuosoite", "Katuosoite ei saa olla tyhjä.");
+            errors.put("Katuosoite", "Katuosoite ei saa olla tyhjä.");
         } else {
-            errors.remove("katuosoite");
+            errors.remove("Katuosoite");
         }
         return (b);
     }
@@ -249,9 +249,9 @@ public class Asiakas {
             b = false;
         }
         if (!b) {
-            errors.put("asiakasnumero", "Asiakasnumeron tulee olla vähintään kaksi numeroa pitkä ja etunollia ei saa olla.");
+            errors.put("Asiakasnumero", "Asiakasnumeron tulee olla vähintään kaksi numeroa pitkä ja etunollia ei saa olla.");
         } else {
-            errors.remove("asiakasnumero");
+            errors.remove("Asiakasnumero");
         }
         return (b);
     }
@@ -264,9 +264,9 @@ public class Asiakas {
     public Boolean onkoPostinumeroOikeanlainen() {
         Boolean b = tarkistin.koostuukoMerkkijonoNumeroista(postinumero);
         if (!b) {
-            errors.put("postinumero", "Postinumeron tulee koostua numeroista.");
+            errors.put("Postinumero", "Postinumeron tulee koostua numeroista.");
         } else {
-            errors.remove("postinumero");
+            errors.remove("Postinumero");
         }
         return (b);
     }
@@ -286,9 +286,9 @@ public class Asiakas {
             b = false;
         }
         if (!b) {
-            errors.put("laskujaLahetetty", "Laskuja lähetetty - arvon tulee olla enemmän tai saman verran kuin nolla.");
+            errors.put("Laskuja lähetetty", "Laskuja lähetetty - arvon tulee olla enemmän tai saman verran kuin nolla.");
         } else {
-            errors.remove("laskujaLahetetty");
+            errors.remove("Laskuja lähetetty");
         }
         return (b);
     }
@@ -301,9 +301,9 @@ public class Asiakas {
     public Boolean onkoSahkopostiOikeanlainen() {
         Boolean b = tarkistin.onkoEmailOsoiteValidi(email);
         if (!b) {
-            errors.put("email", "Sähköpostiosoitteen tulee olla validi.");
+            errors.put("Sähköposti", "Sähköpostiosoitteen tulee olla validi.");
         } else {
-            errors.remove("email");
+            errors.remove("Sähköposti");
         }
         return (b);
     }

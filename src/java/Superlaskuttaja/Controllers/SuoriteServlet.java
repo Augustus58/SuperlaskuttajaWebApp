@@ -5,13 +5,19 @@
  */
 package Superlaskuttaja.Controllers;
 
+import Superlaskuttaja.Models.Asiakas;
+import Superlaskuttaja.Models.Suorite;
 import Superlaskuttaja.Models.UnivClass;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.util.List;
+import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -34,8 +40,167 @@ public class SuoriteServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
         try {
             if (getServletConfig().getInitParameter("univParam").equals("index")) {
-                UnivClass.setAttributeUserLogged(request);
-                UnivClass.showJSP("/suoritteet/index.jsp", request, response);
+                if (UnivClass.isUserLoggedIn(request)) {
+                    try {
+                        List<Suorite> suoritteet = Suorite.getSuoritteet();
+                        request.setAttribute("suoritteet", suoritteet);
+                        UnivClass.getNotification(request);
+                        UnivClass.setAttributeUserLogged(request);
+                        UnivClass.showJSP("/suoritteet/index.jsp", request, response);
+                    } catch (NamingException namingException) {
+                    } catch (SQLException sQLException) {
+                    }
+                } else {
+                    UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
+                    UnivClass.showJSP("/login/login.jsp", request, response);
+                }
+            }
+
+            if (getServletConfig().getInitParameter("univParam").equals("new")) {
+                if (UnivClass.isUserLoggedIn(request)) {
+                    try {
+                        request.setAttribute("asiakkaat", Asiakas.getAsiakkaat());
+                        UnivClass.setAttributeUserLogged(request);
+                        UnivClass.showJSP("/suoritteet/new.jsp", request, response);
+                    } catch (NamingException namingException) {
+                    } catch (SQLException sQLException) {
+                    }
+                } else {
+                    UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
+                    UnivClass.showJSP("/login/login.jsp", request, response);
+                }
+            }
+
+            if (getServletConfig().getInitParameter("univParam").equals("create")) {
+                if (UnivClass.isUserLoggedIn(request)) {
+                    try {
+                        Suorite suorite = new Suorite();
+                        suorite.setSuoritteenNumero(Suorite.getHighestSuoritteenNumero() + 1);
+                        suorite.setLasku(null);
+                        suorite.setTilaaja(request.getParameter("tilaaja"));
+                        suorite.setKuvaus(request.getParameter("kuvaus"));
+                        try {
+                            suorite.setTilaajanVersio(Asiakas.getHighestVersionByAsiakasnumero(Integer.parseInt(request.getParameter("tilaaja"))));
+                        } catch (NumberFormatException numberFormatException) {
+                        }
+                        suorite.setVastaanottaja(request.getParameter("vastaanottaja"));
+                        try {
+                            suorite.setVastaanottajanVersio(Asiakas.getHighestVersionByAsiakasnumero(Integer.parseInt(request.getParameter("vastaanottaja"))));
+                        } catch (NumberFormatException numberFormatException) {
+                        }
+                        suorite.setMaara(request.getParameter("maara"));
+                        suorite.setMaaranYksikot(request.getParameter("maaranYksikot"));
+                        suorite.setAlvProsentti(request.getParameter("alvProsentti"));
+                        suorite.setaHintaVeroton(request.getParameter("aHintaVerollinen"));
+                        suorite.setAloitusaika(request.getParameter("aloitusaika"));
+                        if (suorite.getErrors().isEmpty()) {
+                            suorite.addToDb();
+                            HttpSession session = request.getSession();
+                            session.setAttribute("notification", "Suorite lisätty onnistuneesti.");
+                            response.sendRedirect("SuoriteServletIndex");
+                        } else {
+                            request.setAttribute("errors", suorite.getErrors());
+                            request.setAttribute("suorite", suorite);
+                            request.setAttribute("asiakkaat", Asiakas.getAsiakkaat());
+                            UnivClass.setAttributeUserLogged(request);
+                            UnivClass.showJSP("/suoritteet/new.jsp", request, response);
+                        }
+                    } catch (NamingException namingException) {
+                        namingException.printStackTrace();
+                    } catch (SQLException sQLException) {
+                        sQLException.printStackTrace();
+                    }
+                } else {
+                    UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
+                    UnivClass.showJSP("/login/login.jsp", request, response);
+                }
+            }
+
+            if (getServletConfig().getInitParameter("univParam").equals("edit")) {
+                if (UnivClass.isUserLoggedIn(request)) {
+                    try {
+                        Integer suoritteennumero = Integer.parseInt(request.getParameter("suoritteenNumero"));
+                        Suorite suorite = Suorite.getSuoriteBySuoritteenNumero(suoritteennumero);
+                        request.setAttribute("suorite", suorite);
+                        request.setAttribute("asiakkaat", Asiakas.getAsiakkaat());
+                        HttpSession session = request.getSession();
+                        session.setAttribute("suoritteenNumero", suorite.getSuoritteenNumero());
+                        UnivClass.setAttributeUserLogged(request);
+                        UnivClass.showJSP("/suoritteet/edit.jsp", request, response);
+                    } catch (NumberFormatException numberFormatException) {
+                        numberFormatException.printStackTrace();
+                    } catch (NamingException namingException) {
+                        namingException.printStackTrace();
+                    } catch (SQLException sQLException) {
+                        sQLException.printStackTrace();
+                    }
+                } else {
+                    UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
+                    UnivClass.showJSP("/login/login.jsp", request, response);
+                }
+            }
+
+            if (getServletConfig().getInitParameter("univParam").equals("update")) {
+                if (UnivClass.isUserLoggedIn(request)) {
+                    try {
+                        HttpSession session = request.getSession();
+                        Suorite suorite = Suorite.getSuoriteBySuoritteenNumero((Integer) session.getAttribute("suoritteenNumero"));
+                        suorite.setTilaaja(request.getParameter("tilaaja"));
+                        suorite.setKuvaus(request.getParameter("kuvaus"));
+                        try {
+                            suorite.setTilaajanVersio(Asiakas.getHighestVersionByAsiakasnumero(Integer.parseInt(request.getParameter("tilaaja"))));
+                        } catch (NumberFormatException numberFormatException) {
+                        }
+                        suorite.setVastaanottaja(request.getParameter("vastaanottaja"));
+                        try {
+                            suorite.setVastaanottajanVersio(Asiakas.getHighestVersionByAsiakasnumero(Integer.parseInt(request.getParameter("vastaanottaja"))));
+                        } catch (NumberFormatException numberFormatException) {
+                        }
+                        suorite.setMaara(request.getParameter("maara"));
+                        suorite.setMaaranYksikot(request.getParameter("maaranYksikot"));
+                        suorite.setAlvProsentti(request.getParameter("alvProsentti"));
+                        suorite.setaHintaVeroton(request.getParameter("aHintaVerollinen"));
+                        suorite.setAloitusaika(request.getParameter("aloitusaika"));
+                        if (suorite.getErrors().isEmpty()) {
+                            suorite.update();
+                            session = request.getSession();
+                            session.removeAttribute("suoritteenNumero");
+                            session.setAttribute("notification", "Suoritetta muokattu onnistuneesti.");
+                            response.sendRedirect("SuoriteServletIndex");
+                        } else {
+                            request.setAttribute("errors", suorite.getErrors());
+                            request.setAttribute("suorite", suorite);
+                            request.setAttribute("asiakkaat", Asiakas.getAsiakkaat());
+                            UnivClass.setAttributeUserLogged(request);
+                            UnivClass.showJSP("/suoritteet/edit.jsp", request, response);
+                        }
+                    } catch (NamingException namingException) {
+                        namingException.printStackTrace();
+                    } catch (SQLException sQLException) {
+                        sQLException.printStackTrace();
+                    }
+                } else {
+                    UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
+                    UnivClass.showJSP("/login/login.jsp", request, response);
+                }
+            }
+
+            if (getServletConfig().getInitParameter("univParam").equals("destroy")) {
+                if (UnivClass.isUserLoggedIn(request)) {
+                    try {
+                        Integer suoritteenNumero = Integer.parseInt(request.getParameter("suoritteenNumero"));
+                        Suorite.removeFromDb(suoritteenNumero);
+                        HttpSession session = request.getSession();
+                        session.setAttribute("notification", "Suorite " + suoritteenNumero + " poistettiin onnistuneesti.");
+                        response.sendRedirect("SuoriteServletIndex");
+                    } catch (NumberFormatException numberFormatException) {
+                    } catch (SQLException sQLException) {
+                    } catch (NamingException namingException) {
+                    }
+                } else {
+                    UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
+                    UnivClass.showJSP("/login/login.jsp", request, response);
+                }
             }
         } finally {
             out.close();

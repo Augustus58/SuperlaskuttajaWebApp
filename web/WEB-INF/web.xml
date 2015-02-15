@@ -1,8 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
     <servlet>
-        <servlet-name>Laskuttaja</servlet-name>
+        <servlet-name>LaskuttajaServletIndex</servlet-name>
         <servlet-class>Superlaskuttaja.Controllers.LaskuttajaServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>index</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>LaskuttajaServletCreate</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.LaskuttajaServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>create</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>LaskuttajaServletEdit</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.LaskuttajaServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>edit</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>LaskuttajaServletUpdate</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.LaskuttajaServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>update</param-value>
+        </init-param>
     </servlet>
     <servlet>
         <servlet-name>LoginServletIndex</servlet-name>
@@ -85,6 +113,46 @@
         </init-param>
     </servlet>
     <servlet>
+        <servlet-name>SuoriteServletNew</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.SuoriteServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>new</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>SuoriteServletCreate</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.SuoriteServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>create</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>SuoriteServletEdit</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.SuoriteServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>edit</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>SuoriteServletUpdate</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.SuoriteServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>update</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>SuoriteServletDestroy</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.SuoriteServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>destroy</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
         <servlet-name>LaskuServletIndex</servlet-name>
         <servlet-class>Superlaskuttaja.Controllers.LaskuServlet</servlet-class>
         <init-param>
@@ -93,11 +161,23 @@
         </init-param>
     </servlet>
     <servlet-mapping>
-        <servlet-name>Laskuttaja</servlet-name>
-        <url-pattern>/LaskuttajaServlet</url-pattern>
+        <servlet-name>LaskuttajaServletIndex</servlet-name>
+        <url-pattern>/LaskuttajaServletIndex</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>Laskuttaja</servlet-name>
+        <servlet-name>LaskuttajaServletCreate</servlet-name>
+        <url-pattern>/LaskuttajaServletCreate</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LaskuttajaServletEdit</servlet-name>
+        <url-pattern>/LaskuttajaServletEdit</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LaskuttajaServletUpdate</servlet-name>
+        <url-pattern>/LaskuttajaServletUpdate</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LaskuttajaServletIndex</servlet-name>
         <url-pattern>/</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
@@ -139,6 +219,26 @@
     <servlet-mapping>
         <servlet-name>SuoriteServletIndex</servlet-name>
         <url-pattern>/SuoriteServletIndex</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SuoriteServletNew</servlet-name>
+        <url-pattern>/SuoriteServletNew</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SuoriteServletCreate</servlet-name>
+        <url-pattern>/SuoriteServletCreate</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SuoriteServletEdit</servlet-name>
+        <url-pattern>/SuoriteServletEdit</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SuoriteServletUpdate</servlet-name>
+        <url-pattern>/SuoriteServletUpdate</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SuoriteServletDestroy</servlet-name>
+        <url-pattern>/SuoriteServletDestroy</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>LaskuServletIndex</servlet-name>

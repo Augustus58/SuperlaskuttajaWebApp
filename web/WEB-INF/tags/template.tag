@@ -27,7 +27,7 @@
             <ul class="nav navbar-nav">
                 <c:choose>
                     <c:when test="${selectedTab == 1}">
-                        <li class="active"><a href="Laskuttaja">Laskuttaja</a></li>
+                        <li class="active"><a href="LaskuttajaServletIndex">Laskuttaja</a></li>
                         </c:when>
                         <c:otherwise>
                         <li><a href="Laskuttaja">Laskuttaja</a></li>

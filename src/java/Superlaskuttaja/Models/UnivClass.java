@@ -61,4 +61,13 @@ public class UnivClass {
         }
     }
 
+    public static void setNotificationToSession(String notificationMessage, HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        session.setAttribute("notification", notificationMessage);
+    }
+
+    public static void setNotificationToRequest(String notificationMessage, HttpServletRequest request) {
+        request.setAttribute("notification", notificationMessage);
+    }
+
 }
