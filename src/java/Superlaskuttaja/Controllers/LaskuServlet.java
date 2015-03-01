@@ -49,6 +49,8 @@ public class LaskuServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        request.setCharacterEncoding("UTF-8");
         PrintWriter out = null;
         if (!getServletConfig().getInitParameter("univParam").equals("topdf")) {
             out = response.getWriter();
@@ -74,9 +76,14 @@ public class LaskuServlet extends HttpServlet {
             if (getServletConfig().getInitParameter("univParam").equals("new")) {
                 if (UnivClass.isUserLoggedIn(request)) {
                     try {
-                        request.setAttribute("tilaajat", Asiakas.getTilaajat());
-                        UnivClass.setAttributeUserLogged(request);
-                        UnivClass.showJSP("/laskut/new.jsp", request, response);
+                        if (Suorite.getLaskuttamattomatSuoritteet().size() > 0) {
+                            request.setAttribute("tilaajat", Asiakas.getTilaajat());
+                            UnivClass.setAttributeUserLogged(request);
+                            UnivClass.showJSP("/laskut/new.jsp", request, response);
+                        } else {
+                            UnivClass.setNotificationToSession("Ei laskuttamattomia suoritteita.", request);
+                            response.sendRedirect("SuoriteServletIndex");
+                        }
                     } catch (NamingException namingException) {
                     } catch (SQLException sQLException) {
                     }
@@ -105,7 +112,7 @@ public class LaskuServlet extends HttpServlet {
                         BigDecimal summa = new BigDecimal(0.0);
                         try {
                             for (String parameterValue : request.getParameterValues("suoritteet")) {
-                                summa = summa.add(Suorite.getSuoriteBySuoritteennumero(Integer.parseInt(parameterValue)).getYht());
+                                summa = summa.add(Suorite.getSuoriteBySuoritteenNumero(Integer.parseInt(parameterValue)).getYht());
                             }
                             lasku.getErrors().remove("Laskuttamattomat suoritteet");
                         } catch (NullPointerException nullPointerException) {
@@ -198,7 +205,6 @@ public class LaskuServlet extends HttpServlet {
                         List<Suorite> suoritteet = Suorite.getSuoritteetByLaskunnumero(Integer.parseInt(request.getParameter("laskunNumero")));
                         Asiakas tilaaja = Asiakas.getAsiakasByAsiakasnumero(suoritteet.get(0).getTilaaja());
                         Asiakas vastaanottaja = Asiakas.getAsiakasByAsiakasnumero(suoritteet.get(0).getVastaanottaja());
-//                        response.setHeader("Content-Disposition", "attachment; filename=\"" + lasku.getViite() + ".pdf\"");
                         new PdfExtractor().getPdf(response, laskuttaja, lasku, suoritteet, tilaaja, vastaanottaja);
                     } catch (NamingException namingException) {
                     } catch (SQLException sQLException) {
@@ -210,7 +216,31 @@ public class LaskuServlet extends HttpServlet {
                     UnivClass.showJSP("/login/login.jsp", request, response);
                 }
             }
-            
+
+            if (getServletConfig().getInitParameter("univParam").equals("destroy")) {
+                if (UnivClass.isUserLoggedIn(request)) {
+                    try {
+                        Integer laskunNumero = Integer.parseInt(request.getParameter("laskunNumero"));
+                        String pankkiviivakoodi = Lasku.getLaskuByLaskunnumero(laskunNumero).getPankkiviivakoodi();
+                        List<Suorite> suoritteet = Suorite.getSuoritteetByLaskunnumero(laskunNumero);
+                        for (Suorite suorite : suoritteet) {
+                            suorite.setLasku(null);
+                            suorite.update();
+                        }
+                        Lasku.removeFromDb(laskunNumero, pankkiviivakoodi);
+                        HttpSession session = request.getSession();
+                        session.setAttribute("notification", "Lasku " + laskunNumero + " poistettiin onnistuneesti.");
+                        response.sendRedirect("LaskuServletIndex");
+                    } catch (NumberFormatException numberFormatException) {
+                    } catch (NamingException namingException) {
+                    } catch (SQLException sQLException) {
+                    }
+                } else {
+                    UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
+                    UnivClass.showJSP("/login/login.jsp", request, response);
+                }
+            }
+
         } finally {
             out.close();
         }

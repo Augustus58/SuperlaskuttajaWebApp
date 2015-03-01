@@ -133,6 +133,25 @@ public class Lasku {
         return l;
     }
 
+    public static void removeFromDb(Integer laskunNumero, String pankkiviivakoodi) throws SQLException, NamingException {
+        DBConnection dbc = new DBConnection();
+        Connection c = dbc.getConnection();
+        
+        String sql = "delete from Lasku where laskunNumero = ?";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, laskunNumero);
+        ps.execute();
+        
+        String sql2 = "delete from Pankkiviivakoodi where pankkiviivakoodi = ?";
+        PreparedStatement ps2 = c.prepareStatement(sql2);
+        ps2.setString(1, pankkiviivakoodi);
+        ps2.execute();
+        
+        ps.close();
+        ps2.close();
+        c.close();
+    }
+
     public void update() throws NamingException, SQLException {
         String sql = "UPDATE Lasku SET (laskunNumero, viittausAiempaanLaskuun, laskuttaja, laskuttajanVersio, maksuaika, paivays, viivastyskorko, maksuehto, lisatiedot, onkoMaksettu, pankkiviivakoodi) \n"
                 + "= (?,?,?,?,?,?,?,?,?,?,?)\n"
@@ -140,7 +159,7 @@ public class Lasku {
         DBConnection dbc = new DBConnection();
         Connection c = dbc.getConnection();
         PreparedStatement ps = c.prepareStatement(sql);
-        
+
         ps.setInt(1, this.getLaskunNumero());
         ps.setNull(2, java.sql.Types.INTEGER);
         ps.setString(3, this.getLaskuttaja());
@@ -155,13 +174,13 @@ public class Lasku {
         ps.setInt(12, this.getLaskunNumero());
 
         ps.execute();
-        
+
         String sql2 = "UPDATE Pankkiviivakoodi SET (pankkiviivakoodi, viiteTarkisteella, laskunSumma, erapaiva) \n"
                 + "= (?,?,?,?)\n"
                 + "where pankkiviivakoodi = ?";
-        
+
         PreparedStatement ps2 = c.prepareStatement(sql2);
-        
+
         ps2.setString(1, this.getPankkiviivakoodi());
         ps2.setString(2, this.getViite());
         ps2.setBigDecimal(3, this.getSumma());
@@ -169,7 +188,7 @@ public class Lasku {
         ps2.setString(5, this.getPankkiviivakoodi());
 
         ps2.execute();
-        
+
         ps.close();
         ps2.close();
         c.close();

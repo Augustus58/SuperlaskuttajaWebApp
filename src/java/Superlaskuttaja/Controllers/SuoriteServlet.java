@@ -40,6 +40,8 @@ public class SuoriteServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        request.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
         try {
             if (getServletConfig().getInitParameter("univParam").equals("index")) {
@@ -62,9 +64,14 @@ public class SuoriteServlet extends HttpServlet {
             if (getServletConfig().getInitParameter("univParam").equals("new")) {
                 if (UnivClass.isUserLoggedIn(request)) {
                     try {
-                        request.setAttribute("asiakkaat", Asiakas.getAsiakkaat());
-                        UnivClass.setAttributeUserLogged(request);
-                        UnivClass.showJSP("/suoritteet/new.jsp", request, response);
+                        if (Asiakas.getAsiakkaat().size() > 0) {
+                            request.setAttribute("asiakkaat", Asiakas.getAsiakkaat());
+                            UnivClass.setAttributeUserLogged(request);
+                            UnivClass.showJSP("/suoritteet/new.jsp", request, response);
+                        } else {
+                            UnivClass.setNotificationToSession("Yhtään asiakasta ei ole lisätty.", request);
+                            response.sendRedirect("AsiakasServletIndex");
+                        }
                     } catch (NamingException namingException) {
                     } catch (SQLException sQLException) {
                     }
@@ -109,9 +116,7 @@ public class SuoriteServlet extends HttpServlet {
                             UnivClass.showJSP("/suoritteet/new.jsp", request, response);
                         }
                     } catch (NamingException namingException) {
-                        namingException.printStackTrace();
                     } catch (SQLException sQLException) {
-                        sQLException.printStackTrace();
                     }
                 } else {
                     UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
@@ -131,11 +136,8 @@ public class SuoriteServlet extends HttpServlet {
                         UnivClass.setAttributeUserLogged(request);
                         UnivClass.showJSP("/suoritteet/edit.jsp", request, response);
                     } catch (NumberFormatException numberFormatException) {
-                        numberFormatException.printStackTrace();
                     } catch (NamingException namingException) {
-                        namingException.printStackTrace();
                     } catch (SQLException sQLException) {
-                        sQLException.printStackTrace();
                     }
                 } else {
                     UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
@@ -178,9 +180,7 @@ public class SuoriteServlet extends HttpServlet {
                             UnivClass.showJSP("/suoritteet/edit.jsp", request, response);
                         }
                     } catch (NamingException namingException) {
-                        namingException.printStackTrace();
                     } catch (SQLException sQLException) {
-                        sQLException.printStackTrace();
                     }
                 } else {
                     UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
@@ -192,10 +192,15 @@ public class SuoriteServlet extends HttpServlet {
                 if (UnivClass.isUserLoggedIn(request)) {
                     try {
                         Integer suoritteenNumero = Integer.parseInt(request.getParameter("suoritteenNumero"));
-                        Suorite.removeFromDb(suoritteenNumero);
-                        HttpSession session = request.getSession();
-                        session.setAttribute("notification", "Suorite " + suoritteenNumero + " poistettiin onnistuneesti.");
-                        response.sendRedirect("SuoriteServletIndex");
+                        if (Suorite.getSuoriteBySuoritteenNumero(suoritteenNumero).getLasku() == null || Suorite.getSuoriteBySuoritteenNumero(suoritteenNumero).getLasku() == 0) {
+                            Suorite.removeFromDb(suoritteenNumero);
+                            HttpSession session = request.getSession();
+                            session.setAttribute("notification", "Suorite " + suoritteenNumero + " poistettiin onnistuneesti.");
+                            response.sendRedirect("SuoriteServletIndex");
+                        } else {
+                            UnivClass.setNotificationToSession("Suorite on laskutettu. Poista lasku ensin.", request);
+                            response.sendRedirect("SuoriteServletIndex");
+                        }
                     } catch (NumberFormatException numberFormatException) {
                     } catch (SQLException sQLException) {
                     } catch (NamingException namingException) {
@@ -205,7 +210,7 @@ public class SuoriteServlet extends HttpServlet {
                     UnivClass.showJSP("/login/login.jsp", request, response);
                 }
             }
-            
+
             if (getServletConfig().getInitParameter("univParam").equals("getsuoritteet")) {
                 if (UnivClass.isUserLoggedIn(request)) {
                     try {

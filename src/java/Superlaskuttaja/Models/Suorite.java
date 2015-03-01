@@ -98,6 +98,60 @@ public class Suorite {
         return al;
     }
     
+    public static List<Suorite> getLaskuttamattomatSuoritteet() throws NamingException, SQLException {
+        DBConnection dbc = new DBConnection();
+        Connection c = dbc.getConnection();
+        Statement st = c.createStatement();
+        ResultSet rs = st.executeQuery("select distinct suoritteenNumero, lasku, kuvaus, tilaaja, tilaajanVersio, nimi, vastaanottaja, vastaanottajanVersio,\n"
+                + "maara, maaranYksikot, aHintaVeroton, alvProsentti, alkuaika, loppuaika\n"
+                + "from Suorite, Asiakas\n"
+                + "where Suorite.tilaaja = Asiakas.asiakasnumero\n"
+                + "and Suorite.tilaajanVersio = Asiakas.versio\n"
+                + "and Suorite.lasku is null"
+                + "");
+        ArrayList<Suorite> al = new ArrayList();
+        while (rs.next()) {
+            Suorite s = new Suorite(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getInt(4), rs.getInt(5), rs.getString(6), rs.getInt(7), rs.getInt(8), rs.getBigDecimal(9), rs.getString(10), rs.getBigDecimal(11), rs.getInt(12), rs.getTimestamp(13), rs.getTimestamp(14));
+            al.add(s);
+        }
+        rs.close();
+        st.close();
+        c.close();
+        return al;
+    }
+    
+    public static List<Suorite> getSuoritteetByAsiakasnumero(Integer asiakasnumero) throws NamingException, SQLException {
+        String sql = "select distinct suoritteenNumero, lasku, kuvaus, tilaaja, tilaajanVersio, nimi, vastaanottaja, vastaanottajanVersio,\n"
+                + "maara, maaranYksikot, aHintaVeroton, alvProsentti, alkuaika, loppuaika\n"
+                + "from Suorite, Asiakas\n"
+                + "where Suorite.tilaaja = Asiakas.asiakasnumero\n"
+                + "and Suorite.tilaajanVersio = Asiakas.versio\n"
+                + "and\n"
+                + "(\n"
+                + "tilaaja = ?\n"
+                + "or vastaanottaja = ?\n"
+                + ")"
+                + "";
+        DBConnection dbc = new DBConnection();
+        Connection c = dbc.getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        
+        ps.setInt(1, asiakasnumero);
+        ps.setInt(2, asiakasnumero);
+        
+        ResultSet rs = ps.executeQuery();
+        
+        ArrayList<Suorite> al = new ArrayList();
+        while (rs.next()) {
+            Suorite s = new Suorite(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getInt(4), rs.getInt(5), rs.getString(6), rs.getInt(7), rs.getInt(8), rs.getBigDecimal(9), rs.getString(10), rs.getBigDecimal(11), rs.getInt(12), rs.getTimestamp(13), rs.getTimestamp(14));
+            al.add(s);
+        }
+        rs.close();
+        ps.close();
+        c.close();
+        return al;
+    }
+    
     public static List<Suorite> getSuoritteet(Integer tilaaja, Integer vastaanottaja) throws NamingException, SQLException {
         String sql = "select distinct suoritteenNumero, lasku, kuvaus, tilaaja, tilaajanVersio, nimi, vastaanottaja, vastaanottajanVersio,\n"
                 + "maara, maaranYksikot, aHintaVeroton, alvProsentti, alkuaika, loppuaika\n"
@@ -155,34 +209,6 @@ public class Suorite {
         return al;
     }
     
-    public static Suorite getSuoriteBySuoritteennumero(Integer suoritteennumero) throws NamingException, SQLException {
-        String sql = "select distinct suoritteenNumero, lasku, kuvaus, tilaaja, tilaajanVersio, nimi, vastaanottaja, vastaanottajanVersio,\n"
-                + "maara, maaranYksikot, aHintaVeroton, alvProsentti, alkuaika, loppuaika\n"
-                + "from Suorite, Asiakas\n"
-                + "where Suorite.tilaaja = Asiakas.asiakasnumero\n"
-                + "and Suorite.tilaajanVersio = Asiakas.versio\n"
-                + "and suoritteenNumero = ?\n"
-                + "";
-        DBConnection dbc = new DBConnection();
-        Connection c = dbc.getConnection();
-        PreparedStatement ps = c.prepareStatement(sql);
-        
-        ps.setInt(1, suoritteennumero);
-        
-        ResultSet rs = ps.executeQuery();
-        
-        Suorite s;
-        
-        if(rs.next()) {
-            s = new Suorite(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getInt(4), rs.getInt(5), rs.getString(6), rs.getInt(7), rs.getInt(8), rs.getBigDecimal(9), rs.getString(10), rs.getBigDecimal(11), rs.getInt(12), rs.getTimestamp(13), rs.getTimestamp(14));
-        } else return null;
-        rs.close();
-        ps.close();
-        c.close();
-        
-        return s;
-    }
-
     public static Integer getHighestSuoritteenNumero() {
         try {
             DBConnection dbc = new DBConnection();
@@ -282,7 +308,8 @@ public class Suorite {
                 + "from Suorite, Asiakas\n"
                 + "where Suorite.tilaaja = Asiakas.asiakasnumero\n"
                 + "and Suorite.tilaajanVersio = Asiakas.versio\n"
-                + "and suoritteenNumero = ?";
+                + "and suoritteenNumero = ?\n"
+                + "";
         DBConnection dbc = new DBConnection();
         Connection c = dbc.getConnection();
         PreparedStatement ps = c.prepareStatement(sql);

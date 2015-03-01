@@ -6,6 +6,8 @@
 package Superlaskuttaja.Controllers;
 
 import Superlaskuttaja.Models.Asiakas;
+import Superlaskuttaja.Models.Laskuttaja;
+import Superlaskuttaja.Models.Suorite;
 import Superlaskuttaja.Models.UnivClass;
 import com.google.gson.Gson;
 import java.io.IOException;
@@ -37,6 +39,8 @@ public class AsiakasServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        request.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
         try {
             if (getServletConfig().getInitParameter("univParam").equals("index")) {
@@ -55,18 +59,26 @@ public class AsiakasServlet extends HttpServlet {
                 } catch (SQLException sQLException) {
                 }
             }
-
             if (getServletConfig().getInitParameter("univParam").equals("new")) {
                 if (UnivClass.isUserLoggedIn(request)) {
-                    Integer anro = 0;
-                    if (Asiakas.getHighestAsiakasnumero() == 0) {
-                        anro = 1000;
-                    } else {
-                        anro = Asiakas.getHighestAsiakasnumero() + 1;
+                    try {
+                        if (Laskuttaja.isLaskuttajaAdded()) {
+                            Integer anro;
+                            if (Asiakas.getHighestAsiakasnumero() == 0) {
+                                anro = 1000;
+                            } else {
+                                anro = Asiakas.getHighestAsiakasnumero() + 1;
+                            }
+                            request.setAttribute("asiakasnumero", anro.toString());
+                            UnivClass.setAttributeUserLogged(request);
+                            UnivClass.showJSP("/asiakkaat/new.jsp", request, response);
+                        } else {
+                            UnivClass.setNotificationToSession("Laskuttajan tietoja ei ole lisätty.", request);
+                            response.sendRedirect("LaskuttajaServletIndex");
+                        }
+                    } catch (NamingException namingException) {
+                    } catch (SQLException sQLException) {
                     }
-                    request.setAttribute("asiakasnumero", anro.toString());
-                    UnivClass.setAttributeUserLogged(request);
-                    UnivClass.showJSP("/asiakkaat/new.jsp", request, response);
                 } else {
                     UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
                     UnivClass.showJSP("/login/login.jsp", request, response);
@@ -169,16 +181,18 @@ public class AsiakasServlet extends HttpServlet {
                 if (UnivClass.isUserLoggedIn(request)) {
                     try {
                         Integer asiakasnumero = Integer.parseInt(request.getParameter("asiakasnumero"));
-                        Asiakas.removeFromDb(asiakasnumero);
-                        HttpSession session = request.getSession();
-                        session.setAttribute("notification", "Asiakas " + asiakasnumero + " poistettiin onnistuneesti.");
-                        response.sendRedirect("AsiakasServletIndex");
+                        if (Suorite.getSuoritteetByAsiakasnumero(asiakasnumero).isEmpty()) {
+                            Asiakas.removeFromDb(asiakasnumero);
+                            HttpSession session = request.getSession();
+                            session.setAttribute("notification", "Asiakas " + asiakasnumero + " poistettiin onnistuneesti.");
+                            response.sendRedirect("AsiakasServletIndex");
+                        } else {
+                            UnivClass.setNotificationToSession("Asiakkaalla on suoritteita. Poista suoritteet ensin.", request);
+                            response.sendRedirect("AsiakasServletIndex");
+                        }
                     } catch (NumberFormatException numberFormatException) {
-                        numberFormatException.printStackTrace();
                     } catch (SQLException sQLException) {
-                        sQLException.printStackTrace();
                     } catch (NamingException namingException) {
-                        namingException.printStackTrace();
                     }
                 } else {
                     UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
