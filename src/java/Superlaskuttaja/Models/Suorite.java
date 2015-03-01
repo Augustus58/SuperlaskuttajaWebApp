@@ -44,7 +44,6 @@ public class Suorite {
     private final DateFormat dateFormat1;
     private final DateFormat dateFormat2;
     private final DateFormat dateFormat3;
-    private Boolean doesAloitusaikaIncludeHoursAndMinutes;
     private MerkkiJaMerkkijonoTarkistin tarkistin;
     private Map<String, String> errors;
 
@@ -97,6 +96,91 @@ public class Suorite {
         st.close();
         c.close();
         return al;
+    }
+    
+    public static List<Suorite> getSuoritteet(Integer tilaaja, Integer vastaanottaja) throws NamingException, SQLException {
+        String sql = "select distinct suoritteenNumero, lasku, kuvaus, tilaaja, tilaajanVersio, nimi, vastaanottaja, vastaanottajanVersio,\n"
+                + "maara, maaranYksikot, aHintaVeroton, alvProsentti, alkuaika, loppuaika\n"
+                + "from Suorite, Asiakas\n"
+                + "where Suorite.tilaaja = Asiakas.asiakasnumero\n"
+                + "and Suorite.tilaajanVersio = Asiakas.versio\n"
+                + "and tilaaja = ?\n"
+                + "and vastaanottaja = ?\n"
+                + "and lasku is null\n"
+                + "";
+        DBConnection dbc = new DBConnection();
+        Connection c = dbc.getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        
+        ps.setInt(1, tilaaja);
+        ps.setInt(2, vastaanottaja);
+        
+        ResultSet rs = ps.executeQuery();
+        
+        ArrayList<Suorite> al = new ArrayList();
+        while (rs.next()) {
+            Suorite s = new Suorite(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getInt(4), rs.getInt(5), rs.getString(6), rs.getInt(7), rs.getInt(8), rs.getBigDecimal(9), rs.getString(10), rs.getBigDecimal(11), rs.getInt(12), rs.getTimestamp(13), rs.getTimestamp(14));
+            al.add(s);
+        }
+        rs.close();
+        ps.close();
+        c.close();
+        return al;
+    }
+    
+    public static List<Suorite> getSuoritteetByLaskunnumero(Integer laskunnumero) throws NamingException, SQLException {
+        String sql = "select distinct suoritteenNumero, lasku, kuvaus, tilaaja, tilaajanVersio, nimi, vastaanottaja, vastaanottajanVersio,\n"
+                + "maara, maaranYksikot, aHintaVeroton, alvProsentti, alkuaika, loppuaika\n"
+                + "from Suorite, Asiakas\n"
+                + "where Suorite.tilaaja = Asiakas.asiakasnumero\n"
+                + "and Suorite.tilaajanVersio = Asiakas.versio\n"
+                + "and lasku = ?\n"
+                + "";
+        DBConnection dbc = new DBConnection();
+        Connection c = dbc.getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        
+        ps.setInt(1, laskunnumero);
+        
+        ResultSet rs = ps.executeQuery();
+        
+        ArrayList<Suorite> al = new ArrayList();
+        while (rs.next()) {
+            Suorite s = new Suorite(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getInt(4), rs.getInt(5), rs.getString(6), rs.getInt(7), rs.getInt(8), rs.getBigDecimal(9), rs.getString(10), rs.getBigDecimal(11), rs.getInt(12), rs.getTimestamp(13), rs.getTimestamp(14));
+            al.add(s);
+        }
+        rs.close();
+        ps.close();
+        c.close();
+        return al;
+    }
+    
+    public static Suorite getSuoriteBySuoritteennumero(Integer suoritteennumero) throws NamingException, SQLException {
+        String sql = "select distinct suoritteenNumero, lasku, kuvaus, tilaaja, tilaajanVersio, nimi, vastaanottaja, vastaanottajanVersio,\n"
+                + "maara, maaranYksikot, aHintaVeroton, alvProsentti, alkuaika, loppuaika\n"
+                + "from Suorite, Asiakas\n"
+                + "where Suorite.tilaaja = Asiakas.asiakasnumero\n"
+                + "and Suorite.tilaajanVersio = Asiakas.versio\n"
+                + "and suoritteenNumero = ?\n"
+                + "";
+        DBConnection dbc = new DBConnection();
+        Connection c = dbc.getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        
+        ps.setInt(1, suoritteennumero);
+        
+        ResultSet rs = ps.executeQuery();
+        
+        Suorite s;
+        
+        if(rs.next()) {
+            s = new Suorite(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getInt(4), rs.getInt(5), rs.getString(6), rs.getInt(7), rs.getInt(8), rs.getBigDecimal(9), rs.getString(10), rs.getBigDecimal(11), rs.getInt(12), rs.getTimestamp(13), rs.getTimestamp(14));
+        } else return null;
+        rs.close();
+        ps.close();
+        c.close();
+        
+        return s;
     }
 
     public static Integer getHighestSuoritteenNumero() {
@@ -410,14 +494,21 @@ public class Suorite {
         onkoMaaranYksikotOikeanlainen();
     }
 
+    public void setaHintaVerotonFromVeroton(String aHintaVeroton) {
+        this.aHintaVeroton = new BigDecimal(aHintaVeroton);
+    }
+    
     public void setaHintaVeroton(String aHintaVerollinen) {
         try {
-            BigDecimal a = new BigDecimal(Double.parseDouble(aHintaVerollinen));
-            BigDecimal b = new BigDecimal(getAlvProsentti()).multiply(new BigDecimal(0.01));
-            b = b.add(new BigDecimal(1.0));
-            this.aHintaVeroton = a.divide(b, BigDecimal.ROUND_HALF_UP);
+            Double a = Double.parseDouble(aHintaVerollinen) * 1.0;
+            Double b = getAlvProsentti().doubleValue() * 0.01;
+            b = b + 1.0;
+            a = a / b;
+            this.aHintaVeroton = new BigDecimal(a);
             onkoAHintaVerotonOikeanlainen();
         } catch (NumberFormatException numberFormatException) {
+            errors.put("à hinta verollinen", "Hinnan tulee olla enemmän kuin nolla.");
+        } catch (NullPointerException ex) {
             errors.put("à hinta verollinen", "Hinnan tulee olla enemmän kuin nolla.");
         }
     }
@@ -430,6 +521,13 @@ public class Suorite {
             errors.put("Alv-prosentti", "0 < Alv-prosentti < 100");
         }
     }
+    
+    public void setAloitusaikaFromTimeStampString(String aloitusaika) {
+        try {
+            this.aloitusaika = new Timestamp(dateFormat3.parse(aloitusaika).getTime());
+        } catch (ParseException ex) {
+        }
+    }
 
     public void setAloitusaika(String aloitusaika) {
         try {
@@ -437,6 +535,13 @@ public class Suorite {
             onkoAloitusaikaOikeanlainen();
         } catch (ParseException ex) {
             errors.put("Päivämäärä", "Päivämäärän tulee olla muotoa pp.kk.vvvv");
+        }
+    }
+    
+    public void setLopetusaikaFromTimeStampString(String lopetusaika) {
+        try {
+            this.lopetusaika = new Timestamp(dateFormat3.parse(lopetusaika).getTime());
+        } catch (ParseException ex) {
         }
     }
 

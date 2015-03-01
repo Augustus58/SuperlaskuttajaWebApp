@@ -7,7 +7,10 @@ package Superlaskuttaja.Controllers;
 
 import Superlaskuttaja.Models.Asiakas;
 import Superlaskuttaja.Models.Suorite;
+import Superlaskuttaja.Models.SuoriteAdapter;
 import Superlaskuttaja.Models.UnivClass;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
@@ -196,6 +199,29 @@ public class SuoriteServlet extends HttpServlet {
                     } catch (NumberFormatException numberFormatException) {
                     } catch (SQLException sQLException) {
                     } catch (NamingException namingException) {
+                    }
+                } else {
+                    UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
+                    UnivClass.showJSP("/login/login.jsp", request, response);
+                }
+            }
+            
+            if (getServletConfig().getInitParameter("univParam").equals("getsuoritteet")) {
+                if (UnivClass.isUserLoggedIn(request)) {
+                    try {
+                        Integer tilaaja = Integer.parseInt(request.getParameter("tilaaja"));
+                        Integer vastaanottaja = Integer.parseInt(request.getParameter("vastaanottaja"));
+                        GsonBuilder gsonBuilder = new GsonBuilder();
+                        gsonBuilder.registerTypeAdapter(Suorite.class, new SuoriteAdapter());
+                        gsonBuilder.setPrettyPrinting();
+                        Gson gson = gsonBuilder.create();
+                        String json = gson.toJson(Suorite.getSuoritteet(tilaaja, vastaanottaja));
+                        response.setContentType("application/json");
+                        response.setCharacterEncoding("UTF-8");
+                        response.getWriter().write(json);
+                    } catch (NumberFormatException numberFormatException) {
+                    } catch (NamingException namingException) {
+                    } catch (SQLException sQLException) {
                     }
                 } else {
                     UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);

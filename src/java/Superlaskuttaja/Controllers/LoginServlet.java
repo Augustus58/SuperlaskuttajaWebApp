@@ -78,7 +78,7 @@ public class LoginServlet extends HttpServlet {
 
                 if (u != null) {
                     session.setAttribute("loggedIn", u);
-                    response.sendRedirect("Laskuttaja");
+                    response.sendRedirect("LaskuttajaServletIndex");
                 } else {
                     UnivClass.setError("Kirjautuminen epäonnistui! Antamasi tunnus tai salasana on väärä.", request);
                     UnivClass.showJSP("/login/login.jsp", request, response);

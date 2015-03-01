@@ -42,5 +42,5 @@
             </c:forEach>
         </tbody>
     </table>
-    <button onclick=window.location.href="SuoriteServletNew" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-user"></span>Uusi suorite</button>
+    <button onclick=window.location.href="SuoriteServletNew" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-list-alt"></span>Uusi suorite</button>
 </t:template>

@@ -7,6 +7,7 @@ package Superlaskuttaja.Controllers;
 
 import Superlaskuttaja.Models.Asiakas;
 import Superlaskuttaja.Models.UnivClass;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
@@ -76,6 +77,7 @@ public class AsiakasServlet extends HttpServlet {
                 if (UnivClass.isUserLoggedIn(request)) {
                     try {
                         Asiakas uusiAsiakas = new Asiakas();
+                        System.out.println(request.getParameter("nimi"));
                         uusiAsiakas.setNimi(request.getParameter("nimi"));
                         uusiAsiakas.setKatuosoite(request.getParameter("katuosoite"));
                         uusiAsiakas.setPostinumero(request.getParameter("postinumero"));
@@ -177,7 +179,25 @@ public class AsiakasServlet extends HttpServlet {
                         sQLException.printStackTrace();
                     } catch (NamingException namingException) {
                         namingException.printStackTrace();
-                    } 
+                    }
+                } else {
+                    UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
+                    UnivClass.showJSP("/login/login.jsp", request, response);
+                }
+            }
+
+            if (getServletConfig().getInitParameter("univParam").equals("getvastaanottajat")) {
+                if (UnivClass.isUserLoggedIn(request)) {
+                    try {
+                        Integer asiakasnumero = Integer.parseInt(request.getParameter("asiakasnumero"));
+                        String json = new Gson().toJson(Asiakas.getVastaanottajat(asiakasnumero));
+                        response.setContentType("application/json");
+                        response.setCharacterEncoding("UTF-8");
+                        response.getWriter().write(json);
+                    } catch (NumberFormatException numberFormatException) {
+                    } catch (NamingException namingException) {
+                    } catch (SQLException sQLException) {
+                    }
                 } else {
                     UnivClass.setError("Yritit mennä kirjautumisen vaativaan osioon.", request);
                     UnivClass.showJSP("/login/login.jsp", request, response);

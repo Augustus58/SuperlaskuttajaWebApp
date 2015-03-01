@@ -107,6 +107,38 @@ public class Laskuttaja {
         c.close();
     }
     
+    public void update() throws NamingException, SQLException {
+        String sql = "UPDATE Laskuttaja SET (yrityksenNimi, versio, alvTunniste, nimi, katuosoite, postinumero, kaupunki, puhelinnumero, sahkopostiOsoite, laskujaLahetetty, tilinumero, tilinumeronPankki, tilinumeronSwiftBic) \n"
+                + "= (?,?,?,?,?,?,?,?,?,?,?,?,?)\n"
+                + "where yrityksenNimi = ?\n"
+                + "and versio = ?\n"
+                + "";
+        DBConnection dbc = new DBConnection();
+        Connection c = dbc.getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+
+        ps.setString(1, this.getYrityksenNimi());
+        ps.setInt(2, this.getVersio());
+        ps.setString(3, this.getAlvTunniste());
+        ps.setString(4, this.getNimi());
+        ps.setString(5, this.getKatuosoite());
+        ps.setString(6, this.getPostinumero());
+        ps.setString(7, this.getKaupunki());
+        ps.setString(8, this.getPuhelinnumero());
+        ps.setString(9, this.getEmail());
+        ps.setInt(10, this.getLaskujaLahetetty());
+        ps.setString(11, this.getTilinumero());
+        ps.setString(12, this.getTilinumeronPankki());
+        ps.setString(13, this.getTilinumeronSwiftBic());
+        ps.setString(14, this.getYrityksenNimi());
+        ps.setInt(15, this.getVersio());
+
+        ps.execute();
+
+        ps.close();
+        c.close();
+    }
+    
     public static Laskuttaja getLaskuttaja() throws NamingException, SQLException {
         DBConnection dbc = new DBConnection();
         Connection c = dbc.getConnection();
@@ -149,6 +181,21 @@ public class Laskuttaja {
         } catch (SQLException sQLException) {
             return 0;
         }
+    }
+    
+    public static Integer getLaskujaLahetettyFromDb() throws NamingException, SQLException {
+    DBConnection dbc = new DBConnection();
+            Connection c = dbc.getConnection();
+            Statement st = c.createStatement();
+            ResultSet rs = st.executeQuery("select laskujaLahetetty from Laskuttaja\n"
+                    + "where versio = (select max(versio) from Laskuttaja)\n"
+                    + "");
+            rs.next();
+            Integer i = rs.getInt(1);
+            rs.close();
+            st.close();
+            c.close();
+            return i;
     }
 
     /**

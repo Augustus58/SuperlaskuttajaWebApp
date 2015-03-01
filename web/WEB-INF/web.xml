@@ -1,5 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+    <filter>
+        <filter-name>CharsetFilter</filter-name>
+        <filter-class>org.apache.catalina.filters.SetCharacterEncodingFilter</filter-class>
+        <init-param> 
+            <param-name>forceEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <init-param>
+            <param-name>requestEncoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <init-param>
+            <param-name>responseEncoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+    <jsp-config>
+        <jsp-property-group>
+            <url-pattern>*.jsp</url-pattern>
+            <page-encoding>UTF-8</page-encoding>
+        </jsp-property-group>
+    </jsp-config>
     <servlet>
         <servlet-name>LaskuttajaServletIndex</servlet-name>
         <servlet-class>Superlaskuttaja.Controllers.LaskuttajaServlet</servlet-class>
@@ -105,6 +131,14 @@
         </init-param>
     </servlet>
     <servlet>
+        <servlet-name>AsiakasServletGetVastaanottajat</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.AsiakasServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>getvastaanottajat</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
         <servlet-name>SuoriteServletIndex</servlet-name>
         <servlet-class>Superlaskuttaja.Controllers.SuoriteServlet</servlet-class>
         <init-param>
@@ -153,6 +187,14 @@
         </init-param>
     </servlet>
     <servlet>
+        <servlet-name>SuoriteServletGetSuoritteet</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.SuoriteServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>getsuoritteet</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
         <servlet-name>LaskuServletIndex</servlet-name>
         <servlet-class>Superlaskuttaja.Controllers.LaskuServlet</servlet-class>
         <init-param>
@@ -160,6 +202,50 @@
             <param-value>index</param-value>
         </init-param>
     </servlet>
+    <servlet>
+        <servlet-name>LaskuServletNew</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.LaskuServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>new</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>LaskuServletCreate</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.LaskuServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>create</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>LaskuServletDestroy</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.LaskuServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>destroy</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>LaskuServletSwitchMaksettu</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.LaskuServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>switchmaksettu</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>LaskuServletToPdf</servlet-name>
+        <servlet-class>Superlaskuttaja.Controllers.LaskuServlet</servlet-class>
+        <init-param>
+            <param-name>univParam</param-name>
+            <param-value>topdf</param-value>
+        </init-param>
+    </servlet>
+    <filter-mapping>
+        <filter-name>CharsetFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
     <servlet-mapping>
         <servlet-name>LaskuttajaServletIndex</servlet-name>
         <url-pattern>/LaskuttajaServletIndex</url-pattern>
@@ -175,10 +261,6 @@
     <servlet-mapping>
         <servlet-name>LaskuttajaServletUpdate</servlet-name>
         <url-pattern>/LaskuttajaServletUpdate</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>LaskuttajaServletIndex</servlet-name>
-        <url-pattern>/</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>LoginServletlogInAttempt</servlet-name>
@@ -217,6 +299,10 @@
         <url-pattern>/AsiakasServletDestroy</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>AsiakasServletGetVastaanottajat</servlet-name>
+        <url-pattern>/AsiakasServletGetVastaanottajat</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>SuoriteServletIndex</servlet-name>
         <url-pattern>/SuoriteServletIndex</url-pattern>
     </servlet-mapping>
@@ -241,8 +327,32 @@
         <url-pattern>/SuoriteServletDestroy</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>SuoriteServletGetSuoritteet</servlet-name>
+        <url-pattern>/SuoriteServletGetSuoritteet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>LaskuServletIndex</servlet-name>
         <url-pattern>/LaskuServletIndex</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LaskuServletNew</servlet-name>
+        <url-pattern>/LaskuServletNew</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LaskuServletCreate</servlet-name>
+        <url-pattern>/LaskuServletCreate</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LaskuServletDestroy</servlet-name>
+        <url-pattern>/LaskuServletDestroy</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LaskuServletSwitchMaksettu</servlet-name>
+        <url-pattern>/LaskuServletSwitchMaksettu</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LaskuServletToPdf</servlet-name>
+        <url-pattern>/LaskuServletToPdf</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
@@ -250,6 +360,6 @@
         </session-timeout>
     </session-config>
     <welcome-file-list>
-        <welcome-file>laskuttaja.jsp</welcome-file>
+        <welcome-file>LaskuttajaServletIndex</welcome-file>
     </welcome-file-list>
 </web-app>

@@ -19,7 +19,7 @@
                 <div class="col-md-10">
                     <select class="form-control" name="tilaaja" id="inputTilaaja1">
                         <c:forEach var="asiakas" items="${asiakkaat}">
-                            <option value="${asiakas.asiakasnumero}" <c:if test="${asiakas.asiakasnumero == suorite.tilaaja}">selected</c:if>>${asiakas.nimi} ${asiakas.asiakasnumero}</option>
+                            <option value="${asiakas.asiakasnumero}" <c:if test="${asiakas.asiakasnumero == suorite.tilaaja}">selected</c:if>>${asiakas.nimi}&nbsp;${asiakas.asiakasnumero}</option>
                         </c:forEach>
                     </select>
                 </div>
@@ -29,7 +29,7 @@
                 <div class="col-md-10">
                     <select class="form-control" name="vastaanottaja" id="inputVastaanottaja1">
                         <c:forEach var="asiakas" items="${asiakkaat}">
-                            <option value="${asiakas.asiakasnumero}" <c:if test="${asiakas.asiakasnumero == suorite.vastaanottaja}">selected</c:if>>${asiakas.nimi} ${asiakas.asiakasnumero}</option>
+                            <option value="${asiakas.asiakasnumero}" <c:if test="${asiakas.asiakasnumero == suorite.vastaanottaja}">selected</c:if>>${asiakas.nimi}&nbsp;${asiakas.asiakasnumero}</option>
                         </c:forEach>
                     </select>
                 </div>

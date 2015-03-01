@@ -21,6 +21,7 @@
         <link href="${pageContext.request.contextPath}/css/main.css" rel="stylesheet">
         <script src="http://code.jquery.com/jquery.js"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+        <script src="js/jquery-dateFormat.js"></script>
     </head>
     <body>
         <nav class="navbar navbar-default">
@@ -30,7 +31,7 @@
                         <li class="active"><a href="LaskuttajaServletIndex">Laskuttaja</a></li>
                         </c:when>
                         <c:otherwise>
-                        <li><a href="Laskuttaja">Laskuttaja</a></li>
+                        <li><a href="LaskuttajaServletIndex">Laskuttaja</a></li>
                         </c:otherwise>
                     </c:choose>
                     <c:choose>

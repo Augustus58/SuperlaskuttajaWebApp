@@ -70,6 +70,69 @@ public class Asiakas {
         c.close();
         return al;
     }
+    
+    /**
+     * Metodi palauttaa asiakkaat jotka ovat tilaajia suoritteille, joita ei ole vielä laskutettu.
+     *
+     * @return Asiakkaat jotka ovat tilaajia suoritteille, joita ei ole vielä laskutettu.
+     * @throws javax.naming.NamingException
+     * @throws java.sql.SQLException
+     */
+    public static List<Asiakas> getTilaajat() throws NamingException, SQLException {
+        DBConnection dbc = new DBConnection();
+        Connection c = dbc.getConnection();
+        Statement st = c.createStatement();
+        ResultSet rs = st.executeQuery("select distinct asiakasnumero, versio, nimi, katuosoite, postinumero, kaupunki, laskujaLahetetty, email\n"
+                + "from Asiakas, Suorite A\n"
+                + "where tilaaja = asiakasnumero\n"
+                + "and tilaajanVersio = versio\n"
+                + "and lasku is null\n"
+                + "");
+        ArrayList<Asiakas> al = new ArrayList();
+        while (rs.next()) {
+            Asiakas a = new Asiakas(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), rs.getInt(7), rs.getString(8));
+            al.add(a);
+        }
+        rs.close();
+        st.close();
+        c.close();
+        return al;
+    }
+    
+    /**
+     * Metodi palauttaa vastaanottajat jotka ovat vastaanottajia suoritteille, jotka ovat argumentin tilaajan ja joita ei ole vielä laskutettu.
+     *
+     * @param tilaaja
+     * @return Asiakkaat jotka ovat vastaanottajia suoritteille, jotka ovat argumentin tilaajan ja joita ei ole vielä laskutettu.
+     * @throws javax.naming.NamingException
+     * @throws java.sql.SQLException
+     */
+    public static List<Asiakas> getVastaanottajat(Integer tilaaja) throws NamingException, SQLException {
+        String sql = "select distinct asiakasnumero, versio, nimi, katuosoite, postinumero, kaupunki, laskujaLahetetty, email\n"
+                + "from Asiakas, Suorite\n"
+                + "where Suorite.vastaanottaja = Asiakas.asiakasnumero\n"
+                + "and Suorite.vastaanottajanVersio = Asiakas.versio\n"
+                + "and Suorite.lasku is null\n"
+                + "and Suorite.tilaaja = ?\n"
+                + "";
+        DBConnection dbc = new DBConnection();
+        Connection c = dbc.getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        
+        ps.setInt(1, tilaaja);
+        
+        ResultSet rs = ps.executeQuery();
+        
+        ArrayList<Asiakas> al = new ArrayList();
+        while (rs.next()) {
+            Asiakas a = new Asiakas(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), rs.getInt(7), rs.getString(8));
+            al.add(a);
+        }
+        rs.close();
+        ps.close();
+        c.close();
+        return al;
+    }
 
     public static Asiakas getAsiakasByAsiakasnumero(Integer asiakasnumero) throws NamingException, SQLException {
         String sql = "select distinct asiakasnumero, versio, nimi, katuosoite, postinumero, kaupunki, laskujaLahetetty, email\n"
@@ -163,6 +226,33 @@ public class Asiakas {
         ps.setString(6, this.getKaupunki());
         ps.setInt(7, this.getLaskujaLahetetty());
         ps.setString(8, this.getEmail());
+
+        ps.execute();
+
+        ps.close();
+        c.close();
+    }
+    
+    public void update() throws NamingException, SQLException {
+        String sql = "UPDATE Asiakas SET (asiakasnumero, versio, nimi, katuosoite, postinumero, kaupunki, laskujaLahetetty, email) \n"
+                + "= (?,?,?,?,?,?,?,?)\n"
+                + "where asiakasnumero = ?\n"
+                + "and versio = ?\n"
+                + "";
+        DBConnection dbc = new DBConnection();
+        Connection c = dbc.getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+
+        ps.setInt(1, this.getAsiakasnumero());
+        ps.setInt(2, this.getVersio());
+        ps.setString(3, this.getNimi());
+        ps.setString(4, this.getKatuosoite());
+        ps.setString(5, this.getPostinumero());
+        ps.setString(6, this.getKaupunki());
+        ps.setInt(7, this.getLaskujaLahetetty());
+        ps.setString(8, this.getEmail());
+        ps.setInt(9, this.getAsiakasnumero());
+        ps.setInt(10, this.getVersio());
 
         ps.execute();
 
