@@ -1,6 +1,5 @@
 build
 dist
-/nbproject
+nbproject/private
 web/META-INF/context.xml
 .DS_Store
-*~
