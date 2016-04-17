@@ -2,4 +2,6 @@ build
 dist
 nbproject/private
 web/META-INF/context.xml
+web/WEB-INF/glassfish-web.xml
 .DS_Store
+*~
