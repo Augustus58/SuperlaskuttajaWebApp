@@ -89,7 +89,7 @@ public class LoginServlet extends HttpServlet {
             
             if (getServletConfig().getInitParameter("univParam").equals("logOut")) {
                 request.getSession().removeAttribute("loggedIn");
-                UnivClass.showJSP("Laskuttaja", request, response);
+                UnivClass.showJSP("/login/login.jsp", request, response);
             }
         } finally {
             out.close();
